@@ -1,0 +1,189 @@
+{% extends "study_hub/layout.html" %}
+{% load static %}
+{% block body %}
+
+<div class="mb-5">
+    <!-- Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill">
+                    <i class="fa-solid fa-code me-1"></i> Interactive SQL Challenge
+                </span>
+                <span class="badge bg-dark border border-secondary text-info">
+                    {{ practice.topic.title }}
+                </span>
+            </div>
+            <h1 class="h2 mb-0 text-white">{{ practice.title }}</h1>
+        </div>
+
+        <a href="{% url 'practice_list' practice.topic.id %}" class="btn btn-secondary-custom">
+            <i class="fa-solid fa-arrow-left me-1"></i> All Practice Exercises
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Instructions & Dataset Schema -->
+        <div class="col-lg-5">
+            <div class="card-glass p-4 h-100">
+                <h4 class="h5 mb-3 text-white d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-lines text-warning"></i> Problem Statement
+                </h4>
+                <div class="text-muted small mb-4" style="line-height: 1.7; font-size: 0.925rem;">
+                    {{ practice.instructions }}
+                </div>
+
+                {% if practice.dataset %}
+                    <h5 class="h6 mb-3 text-info d-flex align-items-center gap-2 border-top pt-3" style="border-color: rgba(255,255,255,0.08) !important;">
+                        <i class="fa-solid fa-table"></i> Target Tables Schema
+                    </h5>
+                    {% for table_name, rows in practice.dataset.items %}
+                        <div class="mb-3">
+                            <div class="fw-bold text-white small mb-1">
+                                <i class="fa-solid fa-database text-accent-cyan me-1"></i> Table: <code>{{ table_name }}</code>
+                            </div>
+                            {% if rows %}
+                                <div class="table-custom-wrapper">
+                                    <table class="table-custom">
+                                        <thead>
+                                            <tr>
+                                                {% for key in rows.0.keys %}
+                                                    <th>{{ key }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in rows %}
+                                                <tr>
+                                                    {% for val in row.values %}
+                                                        <td>{{ val }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Editor Console & Query Execution Output -->
+        <div class="col-lg-7">
+            <form method="post">
+                {% csrf_token %}
+                <div class="sql-editor-container mb-4">
+                    <div class="editor-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="editor-dots">
+                                <span class="dot dot-red"></span>
+                                <span class="dot dot-yellow"></span>
+                                <span class="dot dot-green"></span>
+                            </div>
+                            <span class="editor-title">
+                                <i class="fa-solid fa-code text-primary"></i> query.sql
+                            </span>
+                        </div>
+                        <span class="badge bg-dark border border-secondary text-muted">SQLite In-Memory Engine</span>
+                    </div>
+
+                    <textarea
+                        name="query"
+                        id="query"
+                        rows="9"
+                        class="editor-textarea"
+                        placeholder="-- Write your SQL query here...&#10;SELECT * FROM table_name;"
+                    >{{ submitted_query|default:'' }}</textarea>
+
+                    <div class="editor-footer d-flex justify-content-between align-items-center">
+                        <span class="small text-muted font-monospace">Press "Run Query" to evaluate</span>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fa-solid fa-bolt text-warning"></i> Run Query
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Execution Status Banner -->
+            {% if error %}
+                <div class="alert alert-custom-danger mb-4 d-flex align-items-start gap-3">
+                    <i class="fa-solid fa-circle-exclamation fs-4 mt-1"></i>
+                    <div>
+                        <strong>SQL Execution Error:</strong>
+                        <div class="font-monospace small mt-1">{{ error }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if is_correct != None %}
+                {% if is_correct %}
+                    <div class="alert alert-custom-success mb-4 d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-circle-check fs-4"></i>
+                        <div>
+                            <strong>Challenge Solved!</strong> Your SQL query executed cleanly and returned the expected result set.
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-custom-warning mb-4 d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation fs-4"></i>
+                        <div>
+                            <strong>Result Mismatch.</strong> Your query executed successfully, but the output rows do not match the expected dataset.
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- User Results Table -->
+            {% if user_result is not None %}
+                <div class="card-glass p-4 mb-4">
+                    <h5 class="h6 mb-3 text-white d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-success"></i> Your Query Results
+                    </h5>
+                    {% if user_result %}
+                        <div class="table-custom-wrapper">
+                            <table class="table-custom">
+                                <tbody>
+                                    {% for row in user_result %}
+                                        <tr>
+                                            {% for cell in row %}
+                                                <td>{{ cell }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-muted small italic">Query executed successfully, returned 0 rows.</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Expected Results Table (if incorrect) -->
+            {% if expected_result and not is_correct %}
+                <div class="card-glass p-4">
+                    <h5 class="h6 mb-3 text-warning d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check"></i> Expected Target Output
+                    </h5>
+                    <div class="table-custom-wrapper">
+                        <table class="table-custom">
+                            <tbody>
+                                {% for row in expected_result %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            <td>{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

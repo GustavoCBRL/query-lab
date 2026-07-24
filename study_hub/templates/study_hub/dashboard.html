@@ -1,0 +1,131 @@
+{% extends "study_hub/layout.html" %}
+{% load static %}
+{% block body %}
+
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1"><i class="fa-solid fa-chart-pie text-warning me-2"></i> Performance Analytics</h1>
+            <p class="text-muted mb-0">Track your SQL learning milestones, accuracy metrics, and module completions.</p>
+        </div>
+        <a href="{% url 'index' %}" class="btn btn-secondary-custom">
+            <i class="fa-solid fa-book-open me-1"></i> Continue Learning
+        </a>
+    </div>
+
+    <!-- Stat Cards Grid -->
+    <div class="row g-3 mb-5">
+        <!-- Overall Progress -->
+        <div class="col-6 col-lg-2-4 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-purple">
+                    <i class="fa-solid fa-spinner"></i>
+                </div>
+                <div class="stat-value">{{ progress }}%</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+        </div>
+
+        <!-- Questions Answered -->
+        <div class="col-6 col-lg-2-4 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-blue">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div class="stat-value">{{ answered_count }}</div>
+                <div class="stat-label">Questions Solved</div>
+            </div>
+        </div>
+
+        <!-- Correct Answers -->
+        <div class="col-6 col-lg-2-4 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="stat-value">{{ correct_count }}</div>
+                <div class="stat-label">Correct Answers</div>
+            </div>
+        </div>
+
+        <!-- Accuracy -->
+        <div class="col-6 col-lg-2-4 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-amber">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+                <div class="stat-value">{{ accuracy }}%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+        </div>
+
+        <!-- Best Topic -->
+        <div class="col-12 col-lg-2-4 col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-purple">
+                    <i class="fa-solid fa-trophy text-warning"></i>
+                </div>
+                <div class="stat-value text-truncate fs-4" title="{{ best_topic.title }}">
+                    {{ best_topic.title|default:"N/A" }}
+                </div>
+                <div class="stat-label">Strongest Topic</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Completion Banner -->
+    <div class="card-glass mb-5 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="h5 mb-0 text-white">
+                <i class="fa-solid fa-bars-progress text-info me-2"></i> Total Curriculum Completion
+            </h4>
+            <span class="badge bg-primary fs-6 px-3 py-1 rounded-pill">{{ progress }}%</span>
+        </div>
+        <div class="progress-custom">
+            <div class="progress-bar-primary h-100" style="width: {{ progress }}%;"></div>
+        </div>
+    </div>
+
+    <!-- Topic Breakdown -->
+    <div class="card-glass p-4">
+        <h4 class="h5 mb-4 text-white">
+            <i class="fa-solid fa-list-check text-primary me-2"></i> Module Progress Breakdown
+        </h4>
+
+        {% for topic in topics_progress %}
+            <div class="mb-4 pb-4 border-bottom" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="fw-bold text-white fs-6">
+                        <i class="fa-solid fa-folder text-accent-cyan me-2"></i> {{ topic.title }}
+                    </div>
+                    <div class="d-flex gap-3 text-muted small">
+                        <span>Accuracy: <strong class="text-success">{{ topic.accuracy_topic }}%</strong></span>
+                        <span>Progress: <strong class="text-info">{{ topic.progress_topic }}%</strong></span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="small text-muted mb-1">Topic Accuracy</div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-success h-100" style="width: {{ topic.accuracy_topic }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted mb-1">Topic Completion</div>
+                        <div class="progress-custom">
+                            <div class="progress-bar-cyan h-100" style="width: {{ topic.progress_topic }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-4 text-muted">
+                <i class="fa-solid fa-inbox fs-2 mb-2"></i>
+                <p class="mb-0">No progress statistics registered yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

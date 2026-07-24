@@ -1,0 +1,80 @@
+{% extends "study_hub/layout.html" %}
+{% load static %}
+{% block body %}
+
+<div class="mb-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            {% if topic %}
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill mb-2">
+                    Topic Filter
+                </span>
+                <h1 class="h2 mb-1">{{ topic.title }}</h1>
+                <p class="text-muted mb-0">Hands-on SQL practice challenges for this topic.</p>
+            {% else %}
+                <h1 class="h2 mb-1"><i class="fa-solid fa-code text-info me-2"></i> Practice Lab</h1>
+                <p class="text-muted mb-0">Interactive SQL query challenges with live database output verification.</p>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'index' %}" class="btn btn-secondary-custom">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Topics
+        </a>
+    </div>
+
+    {% if practices %}
+        <div class="row g-4">
+            {% for practice in practices %}
+                <div class="col-md-6">
+                    <div class="card-glass p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h3 class="h5 text-white mb-1 fw-bold">{{ practice.title }}</h3>
+                                    {% if not topic %}
+                                        <span class="badge bg-dark border border-secondary text-info">
+                                            <i class="fa-solid fa-tag me-1"></i> {{ practice.topic.title }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                {% if practice.completed %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Completed
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-dark border border-secondary text-muted px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-circle me-1"></i> Not Started
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <p class="text-muted small mb-4" style="line-height: 1.6;">
+                                {{ practice.instructions|truncatechars:140 }}
+                            </p>
+                        </div>
+
+                        <div class="pt-3 border-top" style="border-color: rgba(255, 255, 255, 0.05) !important;">
+                            <a href="{% url 'practice' practice.id %}" class="btn {% if practice.completed %}btn-secondary-custom{% else %}btn-primary-custom{% endif %} w-100 justify-content-center">
+                                {% if practice.completed %}
+                                    <i class="fa-solid fa-rotate-left"></i> Review Challenge
+                                {% else %}
+                                    <i class="fa-solid fa-play"></i> Start Challenge
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card-glass p-5 text-center my-4">
+            <i class="fa-solid fa-code text-muted fs-1 mb-3"></i>
+            <h4 class="text-white">No practice exercises found</h4>
+            <p class="text-muted mb-0">Check back soon for new practice exercises.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

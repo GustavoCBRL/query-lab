@@ -1,0 +1,7 @@
+Django==6.0.6
+django-crispy-forms
+crispy-bootstrap5
+dj-database-url
+gunicorn
+psycopg[binary]
+whitenoise

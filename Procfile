@@ -1,0 +1,1 @@
+web: gunicorn sql_study_hub.wsgi

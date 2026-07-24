@@ -1,0 +1,72 @@
+<div id="topics" class="mb-4">
+    <div class="topic-card-grid">
+      {% for t in topics %}
+        <div class="topic-card-v2 topic-card" data-topic-id="{{ t.id }}">
+          <div>
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="topic-header-icon">
+                {% if "JOIN" in t.title|upper %}
+                  <i class="fa-solid fa-diagram-project"></i>
+                {% elif "SELECT" in t.title|upper or "QUERY" in t.title|upper %}
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                {% elif "GROUP" in t.title|upper or "AGGREGAT" in t.title|upper %}
+                  <i class="fa-solid fa-chart-pie"></i>
+                {% else %}
+                  <i class="fa-solid fa-database"></i>
+                {% endif %}
+              </div>
+              <span class="badge bg-dark border border-secondary text-info">
+                <i class="fa-solid fa-circle-question me-1"></i> {{ t.questions.count }} questions
+              </span>
+            </div>
+            
+            <h3 class="topic-card-title text-truncate" data-topic-id="{{ t.id }}">{{ t.title }}</h3>
+            <p class="topic-card-summary" data-topic-id="{{ t.id }}">{{ t.summary|truncatechars:120 }}</p>
+          </div>
+
+          <div class="topic-card-footer" data-topic-id="{{ t.id }}">
+            <span class="small text-muted fw-semibold">
+              <i class="fa-solid fa-book-open me-1"></i> Start Topic
+            </span>
+            <div class="btn-arrow-icon">
+              <i class="fa-solid fa-chevron-right fs-6"></i>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5 card-glass">
+          <i class="fa-solid fa-folder-open text-muted mb-3 fs-1"></i>
+          <h4 class="text-white">No topics available</h4>
+          <p class="text-muted">Check back later for new SQL content.</p>
+        </div>
+      {% endfor %}
+    </div>
+</div>
+
+{% if topics.paginator.num_pages > 1 %}
+<nav aria-label="Topic pagination">
+  <ul class="pagination-custom">
+    {% if topics.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ topics.previous_page_number }}">
+          <i class="fa-solid fa-chevron-left me-1"></i> Previous
+        </a>
+      </li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ topics.number }} of {{ topics.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if topics.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ topics.next_page_number }}">
+          Next <i class="fa-solid fa-chevron-right ms-1"></i>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
