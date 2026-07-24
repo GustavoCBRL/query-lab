@@ -122,6 +122,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     throw new Error('Error loading topic details!');
                 }
 
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('login_required');
+                }
+
+
                 const topic = await response.json();
                 const optionLabels = ['A', 'B', 'C', 'D'];
 
@@ -200,16 +206,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     topicContent.innerHTML = `
                         <div class="alert alert-custom-warning my-4">
                             <i class="fa-solid fa-lock me-2"></i> You need to log in first to view topic details and complete quizzes.
-                            <a href="/login/" class="btn btn-primary-custom btn-sm ms-3">Log In</a>
+                            <a href="accounts/login/" class="btn btn-primary-custom btn-sm ms-3">Log In</a>
                         </div>
+                        
                     `;
+
+                    console.log(error);
                 } else {
                     topicContent.innerHTML = `
                         <div class="alert alert-custom-danger my-4">
                             <i class="fa-solid fa-triangle-exclamation me-2"></i> Failed to load this topic. ${error.message}
                         </div>
+
                     `;
+                    console.log(error);
                 }
+
                 listTopics.style.display = 'none';
                 topicContent.classList.remove('d-none');
                 backButton.classList.remove('d-none');
