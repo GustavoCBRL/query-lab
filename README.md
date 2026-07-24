@@ -171,10 +171,15 @@ DATABASE_URL=postgresql://...
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+EMAIL_TIMEOUT=30
 EMAIL_HOST_USER=your-email
-EMAIL_HOST_PASSWORD=your-email-password-or-app-password
+EMAIL_HOST_PASSWORD=your-email-app-password
 DEFAULT_FROM_EMAIL=your-email
+SERVER_EMAIL=your-email
 ```
+
+If your provider uses SSL on port `465`, set `EMAIL_PORT=465`, `EMAIL_USE_SSL=True`, and `EMAIL_USE_TLS=False`.
 
 6. Set the start command to run the Django app with Gunicorn:
 
@@ -202,6 +207,8 @@ python manage.py seed_data
 - If Railway exposes `RAILWAY_PUBLIC_DOMAIN`, the project can automatically accept that host.
 - A managed PostgreSQL instance is the better long-term option for production.
 - If the secret key or email password was previously committed to Git history, rotate those credentials before going live.
+- To validate SMTP directly on Railway, run `python manage.py test_email your-address@example.com` in the service shell.
+- If you use Gmail, `EMAIL_HOST_PASSWORD` must be an App Password, not the account login password.
 
 ## How to Use the Application
 
