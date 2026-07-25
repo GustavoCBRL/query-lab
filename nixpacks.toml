@@ -1,0 +1,2 @@
+[start]
+cmd = "python manage.py collectstatic --noinput && gunicorn sql_study_hub.wsgi"
