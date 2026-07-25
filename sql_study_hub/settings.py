@@ -17,16 +17,29 @@ def get_bool_env(name, default=False):
     value = os.getenv(name)
     if value is None:
         return default
+    value = normalize_env_value(value)
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def get_list_env(name, default=""):
-    raw_value = os.getenv(name, default)
+    raw_value = normalize_env_value(os.getenv(name, default))
     return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+def normalize_env_value(value):
+    if value is None:
+        return ""
+
+    normalized = value.strip()
+    if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {'"', "'"}:
+        return normalized[1:-1].strip()
+
+    return normalized
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-dev-key")
+SECRET_KEY = normalize_env_value(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool_env("DEBUG", default=True)
@@ -34,6 +47,7 @@ DEBUG = get_bool_env("DEBUG", default=True)
 ALLOWED_HOSTS = get_list_env("ALLOWED_HOSTS", "127.0.0.1,localhost")
 
 railway_public_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+railway_public_domain = normalize_env_value(railway_public_domain)
 if railway_public_domain and railway_public_domain not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(railway_public_domain)
 
@@ -162,15 +176,16 @@ LOGOUT_REDIRECT_URL = "/"
 
 # Emails BackEnd
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_BACKEND = normalize_env_value(EMAIL_BACKEND)
+EMAIL_HOST = normalize_env_value(os.getenv("EMAIL_HOST", "smtp.gmail.com"))
+EMAIL_PORT = int(normalize_env_value(os.getenv("EMAIL_PORT", "587")))
 EMAIL_USE_TLS = get_bool_env("EMAIL_USE_TLS", default=EMAIL_PORT == 587)
 EMAIL_USE_SSL = get_bool_env("EMAIL_USE_SSL", default=EMAIL_PORT == 465)
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "30"))
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@example.com")
-SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+EMAIL_HOST_USER = normalize_env_value(os.getenv("EMAIL_HOST_USER", ""))
+EMAIL_HOST_PASSWORD = normalize_env_value(os.getenv("EMAIL_HOST_PASSWORD", ""))
+EMAIL_TIMEOUT = int(normalize_env_value(os.getenv("EMAIL_TIMEOUT", "30")))
+DEFAULT_FROM_EMAIL = normalize_env_value(os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@example.com"))
+SERVER_EMAIL = normalize_env_value(os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL))
 
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise ImproperlyConfigured("EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be True.")
