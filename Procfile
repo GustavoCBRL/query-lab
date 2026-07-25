@@ -1,1 +1,1 @@
-web: gunicorn sql_study_hub.wsgi
+web: python manage.py collectstatic --noinput && gunicorn sql_study_hub.wsgi

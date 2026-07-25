@@ -21,7 +21,7 @@ def paginate_posts(request, topics):
 
 
 def index(request):
-    topics = Topics.objects.all()
+    topics = Topics.objects.order_by("id")
     questions = Questions.objects.all()
     page_obj = paginate_posts(request, topics)
 
