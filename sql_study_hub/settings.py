@@ -175,20 +175,21 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 # Emails BackEnd
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+RESEND_API_KEY = normalize_env_value(os.getenv("RESEND_API_KEY", ""))
+  # Emails BackEnd
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "")
 EMAIL_BACKEND = normalize_env_value(EMAIL_BACKEND)
-EMAIL_HOST = normalize_env_value(os.getenv("EMAIL_HOST", "smtp.gmail.com"))
-EMAIL_PORT = int(normalize_env_value(os.getenv("EMAIL_PORT", "587")))
-EMAIL_USE_TLS = get_bool_env("EMAIL_USE_TLS", default=EMAIL_PORT == 587)
-EMAIL_USE_SSL = get_bool_env("EMAIL_USE_SSL", default=EMAIL_PORT == 465)
-EMAIL_HOST_USER = normalize_env_value(os.getenv("EMAIL_HOST_USER", ""))
-EMAIL_HOST_PASSWORD = normalize_env_value(os.getenv("EMAIL_HOST_PASSWORD", ""))
-EMAIL_TIMEOUT = int(normalize_env_value(os.getenv("EMAIL_TIMEOUT", "30")))
-DEFAULT_FROM_EMAIL = normalize_env_value(os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@example.com"))
+    
+# Se RESEND_API_KEY estiver configurada e nenhum EMAIL_BACKEND explícito for passado, usa Resend
+if not EMAIL_BACKEND:
+        if RESEND_API_KEY:
+            EMAIL_BACKEND = "sql_study_hub.email_backend.ResendEmailBackend"
+        else:
+            EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+DEFAULT_FROM_EMAIL = normalize_env_value(os.getenv("DEFAULT_FROM_EMAIL", "onboarding@resend.dev"))
 SERVER_EMAIL = normalize_env_value(os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL))
 
-if EMAIL_USE_TLS and EMAIL_USE_SSL:
-    raise ImproperlyConfigured("EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be True.")
 
 #Apps Config
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
